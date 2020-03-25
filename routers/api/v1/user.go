@@ -1,14 +1,14 @@
 package v1
 
 import (
-	"github.com/Unknwon/com"
+	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
+	"github.com/unknwon/com"
 	"love_song/models"
 	"love_song/pkg/e"
 	"love_song/pkg/setting"
 	"love_song/pkg/util"
 	"net/http"
-	"github.com/astaxie/beego/validation"
 )
 
 //获取用户列表
@@ -30,9 +30,9 @@ func GetUsers(c *gin.Context) {
 	data["total"] = models.GetUserTotal(maps)
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : data,
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": data,
 	})
 }
 
@@ -47,8 +47,8 @@ func AddUser(c *gin.Context) {
 	valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
 
 	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
-		if ! models.ExistUserByName(nickName) {
+	if !valid.HasErrors() {
+		if !models.ExistUserByName(nickName) {
 			code = e.SUCCESS
 			models.AddUser(nickName, state)
 		} else {
@@ -57,9 +57,9 @@ func AddUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : make(map[string]string),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]string),
 	})
 }
 
@@ -80,7 +80,7 @@ func EditUser(c *gin.Context) {
 	valid.MaxSize(nickName, 100, "nickname").Message("名称最长为100字符")
 
 	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
+	if !valid.HasErrors() {
 		code = e.SUCCESS
 		if models.ExistUserByID(id) {
 			data := make(map[string]interface{})
@@ -98,9 +98,9 @@ func EditUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : make(map[string]string),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]string),
 	})
 }
 
@@ -112,7 +112,7 @@ func DeleteUser(c *gin.Context) {
 	valid.Min(id, 1, "id").Message("ID必须大于0")
 
 	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
+	if !valid.HasErrors() {
 		code = e.SUCCESS
 		if models.ExistUserByID(id) {
 			models.DeleteUser(id)
@@ -122,8 +122,8 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : make(map[string]string),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]string),
 	})
 }
