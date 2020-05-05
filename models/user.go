@@ -8,22 +8,29 @@ import (
 type User struct {
 	Model
 
-	Nickname string `json:"nickname"`
-	HeadUrl string `json:"head_url"`
-	State int `json:"state"`
-	CreateTime int `json:"create_time"`
-	UpdateTime int  `json:"update_time"`
+	Nickname   string    `json:"nickname"`
+	Username   string    `json:"username"`
+	Password   string    `json:"password"`
+	HeadUrl    string    `json:"head_url"`
+	State      int       `json:"state"`
+	CreateTime time.Time `json:"create_time"`
+	UpdateTime time.Time `json:"update_time"`
 }
 
-func GetUsers(pageNum int, pageSize int, maps interface {}) (Users [] User) {
+func GetUsers(pageNum int, pageSize int, maps interface{}) (Users []User) {
 	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&Users)
 
 	return
 }
 
-func GetUserTotal(maps interface {}) (count int){
+func GetUserTotal(maps interface{}) (count int) {
 	db.Model(&User{}).Where(maps).Count(&count)
 
+	return
+}
+
+func GetUserByUsername(username string) (user User) {
+	db.Where("username = ?", username).Find(&user)
 	return
 }
 
@@ -37,10 +44,10 @@ func ExistUserByName(name string) bool {
 	return false
 }
 
-func AddUser(name string, state int) bool{
-	db.Create(&User {
-		Nickname : name,
-		State : state,
+func AddUser(name string, state int) bool {
+	db.Create(&User{
+		Nickname: name,
+		State:    state,
 	})
 	return true
 }
@@ -71,7 +78,7 @@ func DeleteUser(id int) bool {
 	return true
 }
 
-func EditUser(id int, data interface {}) bool {
+func EditUser(id int, data interface{}) bool {
 	db.Model(&User{}).Where("id = ?", id).Updates(data)
 
 	return true

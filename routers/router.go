@@ -26,6 +26,8 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/user/:id", v1.EditUser)
 		//删除用户
 		apiv1.DELETE("/user/:id", v1.DeleteUser)
+		//登陆
+		apiv1.POST("/login", v1.Login)
 	}
 
 	return r
