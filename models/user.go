@@ -1,85 +1,34 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
-	"time"
+	"fmt"
 )
 
 type User struct {
-	Model
-
-	Nickname   string    `json:"nickname"`
-	Username   string    `json:"username"`
-	Password   string    `json:"password"`
-	HeadUrl    string    `json:"head_url"`
-	State      int       `json:"state"`
-	CreateTime time.Time `json:"create_time"`
-	UpdateTime time.Time `json:"update_time"`
+	ID int8 `json:"id"`
+	//Nickname   string    `json:"nickname"`
+	//Username   string    `json:"username"`
+	//Password   string    `json:"password"`
+	//HeadUrl    string    `json:"head_url"`
+	//State      int       `json:"state"`
+	//CreateTime time.Time `json:"create_time"`
+	//UpdateTime time.Time `json:"update_time"`
 }
 
 func GetUsers(pageNum int, pageSize int, maps interface{}) (Users []User) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&Users)
-
-	return
-}
-
-func GetUserTotal(maps interface{}) (count int) {
-	db.Model(&User{}).Where(maps).Count(&count)
-
-	return
-}
-
-func GetUserByUsername(username string) (user User) {
-	db.Where("username = ?", username).Find(&user)
-	return
-}
-
-func ExistUserByName(name string) bool {
-	var user User
-	db.Select("id").Where("nickname = ?", name).First(&user)
-	if user.ID > 0 {
-		return true
+	rows, err := db.Query("SELECT * FROM users LIMIT 10 OFFSET 0")
+	checkErr(err)
+	for rows.Next() {
+		var id int
+		err = rows.Scan(&id)
+		checkErr(err)
+		fmt.Println(id)
 	}
-
-	return false
+	return
 }
 
-func AddUser(name string, state int) bool {
-	db.Create(&User{
-		Nickname: name,
-		State:    state,
-	})
-	return true
-}
-
-func (user *User) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreateTime", time.Now().Unix())
-	return nil
-}
-
-func (user *User) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("UpdateTime", time.Now().Unix())
-	return nil
-}
-
-func ExistUserByID(id int) bool {
-	var user User
-	db.Select("id").Where("id = ?", id).First(&user)
-	if user.ID > 0 {
-		return true
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
 	}
-
-	return false
-}
-
-func DeleteUser(id int) bool {
-	db.Where("id = ?", id).Delete(&User{})
-
-	return true
-}
-
-func EditUser(id int, data interface{}) bool {
-	db.Model(&User{}).Where("id = ?", id).Updates(data)
-
-	return true
 }

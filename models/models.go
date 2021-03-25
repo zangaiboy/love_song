@@ -4,22 +4,17 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
+	"database/sql"
+	_ "github.com/lib/pq"
 	"love_song/pkg/setting"
 )
 
-var db *gorm.DB
-
-type Model struct {
-	ID int `gorm:"-;primary_key;AUTO_INCREMENT" json:"id"`
-}
+var db *sql.DB
 
 func init() {
 	var (
-		err                                               error
-		dbType, dbName, user, password, host, tablePrefix string
+		err                                        error
+		dbType, dbName, user, password, host, port string
 	)
 
 	sec, err := setting.Cfg.GetSection("database")
@@ -28,32 +23,18 @@ func init() {
 	}
 
 	dbType = sec.Key("TYPE").String()
-	dbName = sec.Key("NAME").String()
+	dbName = sec.Key("DBNAME").String()
 	user = sec.Key("USER").String()
 	password = sec.Key("PASSWORD").String()
 	host = sec.Key("HOST").String()
-	tablePrefix = sec.Key("TABLE_PREFIX").String()
-
-	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true",
+	port = sec.Key("PORT").String()
+	db, err = sql.Open(dbType, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host,
+		port,
 		user,
 		password,
-		host,
 		dbName))
-
 	if err != nil {
 		log.Println("db err", err)
 	}
-
-	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return tablePrefix + defaultTableName
-	}
-
-	db.SingularTable(true)
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(100)
-	db.LogMode(true)
-}
-
-func CloseDB() {
-	defer db.Close()
 }
